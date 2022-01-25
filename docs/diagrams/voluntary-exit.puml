@@ -1,0 +1,40 @@
+@startuml
+
+!include _gelt.iuml
+
+
+mainframe ""exit""
+
+actor "**Gelt User**" as User <<Gelt>>
+participant "**Gelt USDC Vault**" as Vault <<Gelt>>
+box mStable #EAEAEA
+    participant "**mUSD**" as mUSD
+end box
+participant "**USDC**" as USDC
+
+User -> Vault ++: Exit from Gelt
+
+Vault -> Vault ++: Get value of user's tokens in\nUSDC when redeemed
+Vault --> Vault --: User's USDC balance
+
+Vault -> mUSD ++: Get redemption fee
+mUSD --> Vault --: Redemption fee
+
+Vault -> Vault ++: Deduct redemption fee from user's USDC balance
+Vault --> Vault --: Redeem amount
+
+alt #Ok1 Vault's free funds >= redeem amount
+    Vault -> Vault: Burn user's tokens
+    Vault -> USDC ++: Transfer redeem amount USDC to user
+    USDC --> Vault --: Success
+    Vault -->o User: Success
+else #Alt1 Vault's free funds < redeem amount
+    Vault -> Vault ++: Calculate diff between the vault's\nfree funds and the redeem amount
+    Vault --> Vault --: Diff amount
+    Vault -> Vault: Execute strategy to redeem diff amount of USDC
+    Vault -> Vault: Burn user's tokens
+    Vault -> USDC ++: Transfer redeem amount USDC to user
+    USDC --> Vault --: Success
+    Vault -->o User --: Success
+end
+@enduml

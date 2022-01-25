@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
+      - name: Restore dependencies
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm install
+      - name: Compile Solidity contracts
+        run: npm run compile
+      - name: Cache artifacts
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./types
+            ./artifacts
+            ./cache
+          key: artifacts-${{ github.sha }}
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    strategy:
+      matrix:
+        suite: ['unit', 'scenario', 'integration:execute-strategy', 'integration:exit', 'integration:rewards', 'functional']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
+      - name: Restore dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+      - name: Restore cached artifacts
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./types
+            ./artifacts
+            ./cache
+          key: artifacts-${{ github.sha }}
+      - name: Run ${{ matrix.suite }} tests
+        env:
+          ALCHEMY_ACCESS_TOKEN: ${{ secrets.ALCHEMY_ACCESS_TOKEN }}
+        run: npm run test:${{ matrix.suite }}

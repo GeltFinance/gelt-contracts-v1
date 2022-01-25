@@ -1,0 +1,34 @@
+@startuml
+
+!include _gelt.iuml
+
+autoactivate on
+
+mainframe ""executeStrategy""
+
+actor "**Gelt Operator**" as Op <<Gelt>>
+participant "**Gelt USDC Vault**" as Vault <<Gelt>>
+box mStable #EAEAEA
+    participant "**mUSD**" as mUSD
+    participant "**Save Wrapper**" as SW
+end box
+participant "**USDC**" as USDC
+
+Op -> Vault: Supply USDC to strategy
+
+Vault -> mUSD: Get mint output for the given USDC amount
+
+mUSD --> Vault: mUSD amount
+
+alt #Ok1 ""∆(USDC, mUSD)"" is within slippage bounds
+    Vault -> USDC: Approve Save Wrapper to spend the supplied USDC amount
+    USDC --> Vault: Success
+
+    Vault -> SW: Mint and save mUSD, stake imUSD
+    SW --> Vault: v-imUSD
+    Vault -->o Op: Success
+else #Err1 ""∆(USDC, mUSD)"" is outside of slippage bounds
+    Vault --> Op !!: Revert
+end
+
+@enduml

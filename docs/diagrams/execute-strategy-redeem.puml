@@ -1,0 +1,56 @@
+@startuml
+
+!include _gelt.iuml
+
+autoactivate on
+
+mainframe ""executeStrategy""
+
+actor "**Gelt Operator**" as Op <<Gelt>>
+participant "**Gelt USDC Vault**" as Vault <<Gelt>>
+box mStable #EAEAEA
+    participant "**mUSD**" as mUSD
+    participant "**imUSD**" as imUSD
+    participant "**v-imUSD**" as vimUSD
+end box
+
+Op -> Vault: Redeem USDC from strategy
+
+Vault -> mUSD: Get redemption fee
+mUSD --> Vault: Redemption fee
+
+alt #Ok1 Redemption fee in bounds
+    Vault -> mUSD: Get mUSD amount that gives\nthe requested USDC amount\nwhen redeemed
+    mUSD --> Vault: mUSD withdraw amount
+    note right
+        Includes the redemption fee
+        and potential slippage.
+    end note
+
+    alt #Ok2 ""∆(USDC, mUSD)"" within slippage bounds
+        Vault -> imUSD: Get mUSD withdraw amount in imUSD
+        imUSD --> Vault: imUSD amount (aka credits to unstake)
+
+        Vault -> vimUSD: Get vault's staked credit balance
+        vimUSD --> Vault: v-imUSD balance
+
+        alt #Ok3 Vault's staked credit balance >= credits to unstake
+            Vault -> vimUSD: Unstake credits
+            vimUSD --> Vault: imUSD credits
+            Vault -> imUSD: Redeem imUSD credits
+            imUSD --> Vault: mUSD
+            Vault -> mUSD: Redeem mUSD
+            mUSD --> Vault: USDC
+            Vault -->o Op: Success
+        else #Err3 Vault's staked credit balance < credits to unstake
+            Vault --> Op !!: Revert
+        end
+    else #Err2 ""∆(USDC, mUSD)"" outside of slippage bounds
+        Vault --> Op !!: Revert
+    end
+
+else #Err1 Redemption fee out of bounds
+    Vault --> Op !!: Revert
+end
+
+@enduml

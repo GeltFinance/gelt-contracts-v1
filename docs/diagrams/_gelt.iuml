@@ -1,0 +1,27 @@
+@startuml
+
+<style>
+  .Gelt {
+    BackgroundColor #fff9f3
+    LineColor #138680
+  }
+</style>
+
+!define Ok1 D7F4D2
+!define Ok2 BFEEB7
+!define Ok3 A7E99C
+!define Alt1 BFD4DB
+!define Err1 FDE0E0
+!define Err2 F4C1C1
+!define Err3 FDAAAA
+
+skinparam sequence {
+    ArrowThickness 2
+    BoxBorderColor #999999
+    ParticipantPadding 10
+}
+
+header Last updated at %date("yyyy-MM-dd")
+footer © Gelt Finance
+
+@enduml

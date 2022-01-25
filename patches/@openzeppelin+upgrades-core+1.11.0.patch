@@ -1,0 +1,65 @@
+diff --git a/node_modules/@openzeppelin/upgrades-core/dist/storage/compare.js b/node_modules/@openzeppelin/upgrades-core/dist/storage/compare.js
+index 39a57e9..92bd242 100644
+--- a/node_modules/@openzeppelin/upgrades-core/dist/storage/compare.js
++++ b/node_modules/@openzeppelin/upgrades-core/dist/storage/compare.js
+@@ -70,6 +70,15 @@ class StorageLayoutComparator {
+             return undefined;
+         }
+         switch (original.head) {
++            case 't_userDefinedValueType':
++                // user defined value types only have one member, the underlying type.
++                const originalMembers = original.item.members;
++                const updatedMembers = updated.item.members;
++                if (originalMembers[0] !== updatedMembers[0]) {
++                    return { kind: 'obvious mismatch', original, updated };
++                } else {
++                    return undefined;
++                }
+             case 't_contract':
+                 // no storage layout errors can be introduced here since it is just an address
+                 return undefined;
+diff --git a/node_modules/@openzeppelin/upgrades-core/dist/storage/extract.js b/node_modules/@openzeppelin/upgrades-core/dist/storage/extract.js
+index a14ccfe..1d4bca0 100644
+--- a/node_modules/@openzeppelin/upgrades-core/dist/storage/extract.js
++++ b/node_modules/@openzeppelin/upgrades-core/dist/storage/extract.js
+@@ -15,7 +15,7 @@ exports.isCurrentLayoutVersion = isCurrentLayoutVersion;
+ function extractStorageLayout(contractDef, decodeSrc, deref) {
+     const layout = { storage: [], types: {}, layoutVersion: currentLayoutVersion };
+     // Note: A UserDefinedTypeName can also refer to a ContractDefinition but we won't care about those.
+-    const derefUserDefinedType = deref(['StructDefinition', 'EnumDefinition']);
++    const derefUserDefinedType = deref(['StructDefinition', 'EnumDefinition', 'UserDefinedValueTypeDefinition']);
+     for (const varDecl of contractDef.nodes) {
+         if ((0, utils_1.isNodeType)('VariableDeclaration', varDecl)) {
+             if (!varDecl.constant && varDecl.mutability !== 'immutable') {
+@@ -79,6 +79,9 @@ function getTypeMembers(typeDef) {
+             };
+         });
+     }
++    else if (typeDef.nodeType === 'UserDefinedValueTypeDefinition') {
++        return [typeDef.underlyingType.name];
++    }
+     else {
+         return typeDef.members.map(m => m.name);
+     }
+diff --git a/node_modules/@openzeppelin/upgrades-core/dist/utils/function.js b/node_modules/@openzeppelin/upgrades-core/dist/utils/function.js
+index fa8c5ba..29a3b20 100644
+--- a/node_modules/@openzeppelin/upgrades-core/dist/utils/function.js
++++ b/node_modules/@openzeppelin/upgrades-core/dist/utils/function.js
+@@ -16,7 +16,7 @@ function serializeTypeName(parameter, deref) {
+             return typeName.typeDescriptions.typeString;
+         }
+         case 'UserDefinedTypeName': {
+-            const userDefinedType = deref(['StructDefinition', 'EnumDefinition', 'ContractDefinition'], typeName.referencedDeclaration);
++            const userDefinedType = deref(['StructDefinition', 'EnumDefinition', 'ContractDefinition', 'UserDefinedValueTypeDefinition'], typeName.referencedDeclaration);
+             switch (userDefinedType.nodeType) {
+                 case 'StructDefinition':
+                     return '(' + userDefinedType.members.map(member => serializeTypeName(member, deref)) + ')';
+@@ -25,6 +25,8 @@ function serializeTypeName(parameter, deref) {
+                     return 'uint8';
+                 case 'ContractDefinition':
+                     return 'address';
++                case 'UserDefinedValueTypeDefinition':
++                    return userDefinedType.underlyingType.name;
+                 default:
+                     return (0, assert_1.assertUnreachable)(userDefinedType);
+             }
