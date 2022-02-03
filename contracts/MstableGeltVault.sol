@@ -90,6 +90,12 @@ contract MstableGeltVault is
         public
         initializer
     {
+        require(address(bAsset_) != address(0), "bAsset must not be the zero address");
+        require(address(mAsset_) != address(0), "mAsset must not be the zero address");
+        require(address(imAsset_) != address(0), "imAsset must not be the zero address");
+        require(address(vimAsset_) != address(0), "vimAsset must not be the zero address");
+        require(address(saveWrapper_) != address(0), "saveWrapper must not be the zero address");
+
         __Context_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();

@@ -31,6 +31,8 @@ interface MstableGeltVaultOptions extends GeltVaultOptions {
     useMockStrategy: boolean;
 }
 
+export const DEAD_ADDRESS = '0x000000000000000000000000000000000000dEaD';
+
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const UINT256_MAX = BigNumber.from(2).pow(256).sub(1);
@@ -66,10 +68,10 @@ export async function deployMstableGeltVault(signer: Signer, options: MstableGel
 
     const vault = await factory.deploy(
         bAsset,
-        mAsset || ZERO_ADDRESS,
-        imAsset || ZERO_ADDRESS,
-        vimAsset || ZERO_ADDRESS,
-        saveWrapper || ZERO_ADDRESS,
+        mAsset || DEAD_ADDRESS,
+        imAsset || DEAD_ADDRESS,
+        vimAsset || DEAD_ADDRESS,
+        saveWrapper || DEAD_ADDRESS,
         name || 'Mock Gelt Vault',
         symbol || 'gTKN',
         useMockStrategy
@@ -90,10 +92,10 @@ export async function deployProxiedMstableVault(
 
     const args = [
         bAsset,
-        mAsset || ZERO_ADDRESS,
-        imAsset || ZERO_ADDRESS,
-        vimAsset || ZERO_ADDRESS,
-        saveWrapper || ZERO_ADDRESS,
+        mAsset || DEAD_ADDRESS,
+        imAsset || DEAD_ADDRESS,
+        vimAsset || DEAD_ADDRESS,
+        saveWrapper || DEAD_ADDRESS,
         name || 'Upgradable Mock Gelt Vault',
         symbol || 'gTKN'
     ];

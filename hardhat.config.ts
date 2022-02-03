@@ -59,6 +59,9 @@ const config: HardhatUserConfig = {
     runOnCompile: false,
     except: ['^contracts/harness/']
   },
+  paths: {
+    tests: 'tests'
+  },
   mocha: {
     parallel: true,
     jobs: os.cpus().length,
