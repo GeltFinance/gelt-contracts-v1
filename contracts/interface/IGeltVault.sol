@@ -193,8 +193,9 @@ interface IGeltVaultV1 {
 
     /// @notice Exits all funds and collects rewards from the strategy.
     /// @dev This should only be used in emergency scenarios.
+    /// @param minOutputQuantity Minimum amount of underlying to be withdrawn.
     /// @custom:gelt-access-control Administrator
-    function emergencyExitStrategy() external;
+    function emergencyExitStrategy(uint256 minOutputQuantity) external;
 
     /// @notice Pauses the vault preventing mints, redeems, strategy execution and voluntary exits.
     /// @dev This should only be used in emergency scenarios.

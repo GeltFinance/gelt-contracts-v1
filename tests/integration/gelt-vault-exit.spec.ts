@@ -114,7 +114,7 @@ describe('[Integration] Gelt Vault <> mStable - Exits', function () {
             await vault.executeStrategyNetDeposit(mintAmount);
             expect(await bAsset.balanceOf(vault.address)).to.equal(0);
 
-            await vault.emergencyExitStrategy();
+            await vault.emergencyExitStrategy(1);
 
             expect(await vimAsset.balanceOf(vault.address)).to.equal(0);
             expect(await imAsset.balanceOf(vault.address)).to.equal(0);
@@ -124,7 +124,7 @@ describe('[Integration] Gelt Vault <> mStable - Exits', function () {
 
         it('should not revert when there are no funds in the strategy', async () => {
             expect(await vault.harnessGetStrategyValue()).to.equal(0);
-            await vault.emergencyExitStrategy();
+            await vault.emergencyExitStrategy(1);
         });
     });
 });
