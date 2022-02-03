@@ -385,7 +385,9 @@ contract MstableGeltVault is
     }
 
     /// @inheritdoc IGeltVaultV1
-    function emergencyExitStrategy() external override onlyRole(ADMINISTRATOR_ROLE) {
+    function emergencyExitStrategy(uint256 minOutputQuantity) external override onlyRole(ADMINISTRATOR_ROLE) {
+        require(minOutputQuantity != 0, "minimum output quantity must not be zero");
+
         if (vimAsset.balanceOf(address(this)) > 0) {
             // Unstake and collect rewards.
             vimAsset.exit();
@@ -404,7 +406,7 @@ contract MstableGeltVault is
             outputAmount = mAsset.redeem(
                 address(bAsset), // address _output
                 mAssetBalance, // uint256 _mAssetQuantity
-                1, // uint256 _minOutputQuantity
+                minOutputQuantity, // uint256 _minOutputQuantity
                 address(this) // address _recipient
             );
         }

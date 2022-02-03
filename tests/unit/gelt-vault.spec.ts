@@ -161,6 +161,12 @@ describe('[Unit] Gelt Vault', () => {
         });
     });
 
+    describe('#emergencyExitStrategy', () => {
+        it('should revert when the minimum output quantity is zero', async () => {
+            await expect(vault.emergencyExitStrategy(0)).to.be.revertedWith('minimum output quantity must not be zero');
+        });
+    });
+
     describe('#sweep', () => {
         it('should sweep the given amount of tokens', async () => {
             const otherToken = await deployErc20Token(user1, defaultErc20Options);
