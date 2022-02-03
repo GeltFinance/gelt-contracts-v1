@@ -406,7 +406,7 @@ contract MstableGeltVault is
             outputAmount = mAsset.redeem(
                 address(bAsset), // address _output
                 mAssetBalance, // uint256 _mAssetQuantity
-                    minOutputQuantity, // uint256 _minOutputQuantity
+                minOutputQuantity, // uint256 _minOutputQuantity
                 address(this) // address _recipient
             );
         }
