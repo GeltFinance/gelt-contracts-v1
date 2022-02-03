@@ -4,10 +4,18 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { ERC20, MstableGeltVaultHarness } from '../../types';
 import { StrategyTolerancesStruct } from '../../types/IGeltVault';
 import { EIP712Domain } from '../utils/eip712';
-import { defaultErc20Options, deployDefaultVault, deployErc20Token, ZERO_ADDRESS } from '../utils/fixtures';
+import {
+    DEAD_ADDRESS,
+    ZERO_ADDRESS,
+    defaultErc20Options,
+    deployDefaultVault,
+    deployErc20Token,
+    deployMstableGeltVault
+} from '../utils/fixtures';
 import { mintWithAuthorization, redeemWithAuthorization } from '../utils/meta-transactions';
 import { Amount } from '../utils/amount';
 import { hardhatDisableFork } from '../utils/network';
+import { describe } from 'mocha';
 
 describe('[Unit] Gelt Vault', () => {
     const stablecoinAmount = new Amount(6);
@@ -29,6 +37,22 @@ describe('[Unit] Gelt Vault', () => {
     beforeEach(async () => {
         const erc20Options = { ...defaultErc20Options, decimals: stablecoinAmount.decimals };
         ({ token, vault, domain } = await deployDefaultVault(signer, erc20Options)); // signer will be admin.
+    });
+
+    describe('#initialize', () => {
+        it('should fail if one of the initialize parameters is the zero address', async () => {
+            const mstableGeltVaultOptions = { bAsset: DEAD_ADDRESS, useMockStrategy: false };
+            const errorMessage = 'must not be the zero address';
+
+            await expect(deployMstableGeltVault(signer, { ...mstableGeltVaultOptions, bAsset: ZERO_ADDRESS }))
+                .to.be.revertedWith(errorMessage);
+            await expect(deployMstableGeltVault(signer, { ...mstableGeltVaultOptions, mAsset: ZERO_ADDRESS }))
+                .to.be.revertedWith(errorMessage);
+            await expect(deployMstableGeltVault(signer, { ...mstableGeltVaultOptions, imAsset: ZERO_ADDRESS }))
+                .to.be.revertedWith(errorMessage);
+            await expect(deployMstableGeltVault(signer, { ...mstableGeltVaultOptions, vimAsset: ZERO_ADDRESS }))
+                .to.be.revertedWith(errorMessage);
+        });
     });
 
     describe('#mintWithAuthorization', () => {
