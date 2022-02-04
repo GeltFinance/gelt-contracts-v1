@@ -90,11 +90,11 @@ contract MstableGeltVault is
         public
         initializer
     {
-        require(address(bAsset_) != address(0), "bAsset must not be the zero address");
-        require(address(mAsset_) != address(0), "mAsset must not be the zero address");
-        require(address(imAsset_) != address(0), "imAsset must not be the zero address");
-        require(address(vimAsset_) != address(0), "vimAsset must not be the zero address");
-        require(address(saveWrapper_) != address(0), "saveWrapper must not be the zero address");
+        require(address(bAsset_) != address(0), "bAsset addr must not be 0");
+        require(address(mAsset_) != address(0), "mAsset addr must not be 0");
+        require(address(imAsset_) != address(0), "imAsset addr must not be 0");
+        require(address(vimAsset_) != address(0), "vimAsset addr must not be 0");
+        require(address(saveWrapper_) != address(0), "saveWrapper addr must not be 0");
 
         __Context_init();
         __UUPSUpgradeable_init();
@@ -117,7 +117,7 @@ contract MstableGeltVault is
         imAsset = imAsset_;
         mAsset = mAsset_;
 
-        require(decimals() >= bAsset.decimals(), "invalid decimals on basket asset");
+        require(decimals() >= bAsset.decimals(), "invalid decimals on bAsset");
 
         initialExchangeRate = FixedPointMath.toUFixed256x18(1, 100); // 1:100 initial mint.
         precisionMultiplier = 10**decimals() / 10**bAsset.decimals(); // 10^18 / 10^6 = 10^12
@@ -166,8 +166,8 @@ contract MstableGeltVault is
         whenNotTemporarilyPaused
         returns (uint256 mintTokens)
     {
-        require(minter != address(0), "minter must not be the zero address");
-        require(mintAmount > 0, "mint amount must be greater than zero");
+        require(minter != address(0), "minter addr must not be 0");
+        require(mintAmount > 0, "mintAmount must be > 0");
 
         // Verify authorization.
         _requireValidAuthorization(minter, validAfter, validBefore, nonce);
@@ -215,9 +215,9 @@ contract MstableGeltVault is
         whenNotTemporarilyPaused
         returns (uint256 redeemAmount)
     {
-        require(redeemer != address(0), "redeemer must not be the zero address");
-        require(withdrawTo != address(0), "withdrawing to the zero address is not allowed");
-        require(redeemTokens > 0, "redeem tokens must be greater than zero");
+        require(redeemer != address(0), "redeemer addr must not be 0");
+        require(withdrawTo != address(0), "withdrawTo addr must not be 0");
+        require(redeemTokens > 0, "redeemTokens must be > 0");
 
         // Verify authorization.
         _requireValidAuthorization(redeemer, validAfter, validBefore, nonce);
@@ -269,7 +269,7 @@ contract MstableGeltVault is
         whenNotTemporarilyPaused
         nonReentrant
     {
-        require(withdrawTo != address(0), "withdrawing to the zero address is not allowed");
+        require(withdrawTo != address(0), "withdrawTo addr must not be 0");
 
         uint256 redeemTokens = balanceOf(_msgSender());
 
@@ -331,7 +331,7 @@ contract MstableGeltVault is
 
     /// @inheritdoc IGeltVaultV1
     function collectGovernanceTokens() external override whenNotTemporarilyPaused onlyRole(OPERATOR_ROLE) {
-        require(collector != address(0), "collecting governance tokens to the zero address is not allowed");
+        require(collector != address(0), "collector addr must not be 0");
 
         IERC20Upgradeable rewardToken = vimAsset.getRewardToken(); // MTA
         IERC20Upgradeable platformToken = vimAsset.getPlatformToken(); // WMATIC
@@ -362,7 +362,7 @@ contract MstableGeltVault is
         whenNotTemporarilyPaused
         onlyRole(ADMINISTRATOR_ROLE)
     {
-        require(collector_ != address(0), "setting the collector to the zero address is not allowed");
+        require(collector_ != address(0), "collector addr must not be 0");
 
         emit CollectorChanged(collector, collector_, _msgSender());
 
@@ -376,8 +376,8 @@ contract MstableGeltVault is
         whenNotTemporarilyPaused
         onlyRole(ADMINISTRATOR_ROLE)
     {
-        require(strategyTolerances_.slippageBps <= 10_000, "slippage bps must not be more than 10000");
-        require(strategyTolerances_.redemptionFeeBps <= 10_000, "redemption fee bps must not be more than 10000");
+        require(strategyTolerances_.slippageBps <= 10_000, "slippageBps must be <= 10k");
+        require(strategyTolerances_.redemptionFeeBps <= 10_000, "redemptionFeeBps must be <= 10k");
 
         emit StrategyTolerancesChanged(strategyTolerances, strategyTolerances_, _msgSender());
 
@@ -386,7 +386,7 @@ contract MstableGeltVault is
 
     /// @inheritdoc IGeltVaultV1
     function emergencyExitStrategy(uint256 minOutputQuantity) external override onlyRole(ADMINISTRATOR_ROLE) {
-        require(minOutputQuantity != 0, "minimum output quantity must not be zero");
+        require(minOutputQuantity != 0, "minOutputQuantity must not be 0");
 
         if (vimAsset.balanceOf(address(this)) > 0) {
             // Unstake and collect rewards.
@@ -431,7 +431,7 @@ contract MstableGeltVault is
         whenNotTemporarilyPaused
         onlyRole(ADMINISTRATOR_ROLE)
     {
-        require(amount > 0, "amount must not be zero");
+        require(amount > 0, "amount must not be 0");
         require(
             token != bAsset &&
                 token != mAsset &&
@@ -439,7 +439,7 @@ contract MstableGeltVault is
                 token != vimAsset &&
                 token != vimAsset.getRewardToken() &&
                 token != vimAsset.getPlatformToken(),
-           "token must not be what the vault is protecting"
+           "token must not be protected"
         );
 
         uint256 balance = token.balanceOf(address(this));
@@ -454,7 +454,7 @@ contract MstableGeltVault is
     /// @param amount Amount of underlying to supply to the strategy.
     /// @return inputAmount Amount of underlying that was supplied.
     function _executeStrategyMint(uint256 amount) internal returns (uint256 inputAmount) {
-        require(amount > 0, "amount must not be zero");
+        require(amount > 0, "amount must not be 0");
 
         // Check if the mint output quantity is within the allowed bounds.
         uint256 maxSlippage = amount.basisPoints(strategyTolerances.slippageBps);
@@ -486,7 +486,7 @@ contract MstableGeltVault is
     /// @param checkRedemptionFee True to enable redemption fee tolerance checks, false otherwise.
     /// @return outputAmount Amount of underlying that was redeemed.
     function _executeStrategyRedeem(uint256 amount, bool checkRedemptionFee) internal returns (uint256 outputAmount) {
-        require(amount > 0, "amount must not be zero");
+        require(amount > 0, "amount must not be 0");
 
         uint16 redeemFeeBps = _getStrategyRedeemFeeBps();
 
@@ -581,7 +581,7 @@ contract MstableGeltVault is
     function _getStrategyRedeemFeeBps() internal view returns (uint16 redemptionFeeBps) {
         uint256 redemptionFee = mAsset.data().redemptionFee;
 
-        require(redemptionFee >= 1e14, "strategy redemption fee must be scaled to 18 decimals");
+        require(redemptionFee >= 1e14, "redemptionFee must be >= 1e14");
 
         redemptionFeeBps = (redemptionFee / 1e14).toUint16();
     }

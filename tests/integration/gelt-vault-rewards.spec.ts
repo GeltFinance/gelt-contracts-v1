@@ -85,7 +85,7 @@ describe('[Integration] Gelt Vault <> mStable - Rewards', function () {
 
         it('should revert when the reward collector address is unset', async () => {
              await expect(vault.collectGovernanceTokens())
-               .to.be.revertedWith('collecting governance tokens to the zero address is not allowed');
+               .to.be.revertedWith('collector addr must not be 0');
         });
     });
 });
