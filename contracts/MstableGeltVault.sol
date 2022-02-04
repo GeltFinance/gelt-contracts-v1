@@ -106,8 +106,6 @@ contract MstableGeltVault is
         __Authorizable_init(name, "1");
 
         _grantRole(OWNER_ROLE, _msgSender());
-        _grantRole(ADMINISTRATOR_ROLE, _msgSender());
-        _grantRole(OPERATOR_ROLE, _msgSender());
         _setRoleAdmin(ADMINISTRATOR_ROLE, OWNER_ROLE);
         _setRoleAdmin(OPERATOR_ROLE, OWNER_ROLE);
 
@@ -448,6 +446,17 @@ contract MstableGeltVault is
         token.safeTransfer(_msgSender(), amount);
 
         emit TokenSwept(token, amount, _msgSender());
+    }
+
+    /// @inheritdoc IGeltVaultV1
+    function transferOwnership(address newOwner) external onlyRole(OWNER_ROLE) {
+        require(newOwner != address(0), "owner addr must not be 0");
+
+        // Revoke role from previous owner and grant role to new owner.
+        _revokeRole(OWNER_ROLE, _msgSender());
+        _grantRole(OWNER_ROLE, newOwner);
+
+        emit OwnershipTransferred(_msgSender(), newOwner);
     }
 
     /// @dev Deposits to the strategy.

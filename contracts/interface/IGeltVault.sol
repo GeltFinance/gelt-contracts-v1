@@ -103,6 +103,11 @@ interface IGeltVaultV1 {
     /// @param sender Sender of the transaction (Gelt administrator).
     event TokenSwept(IERC20Upgradeable indexed token, uint256 amount, address sender);
 
+    /// @notice Emitted after the contract's ownership is transferred.
+    /// @param previousOwner Address of the previous owner.
+    /// @param newOwner Address of the new owner.
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
     // =========================================================================
     // Functions
     // =========================================================================
@@ -213,6 +218,11 @@ interface IGeltVaultV1 {
     /// @param amount Amount to withdraw.
     /// @custom:gelt-access-control Administrator
     function sweep(IERC20Upgradeable token, uint256 amount) external;
+
+    /// @notice Transfers the ownership of the contract.
+    /// @param newOwner Address of the new contract owner.
+    /// @custom:gelt-access-control Owner
+    function transferOwnership(address newOwner) external;
 }
 
 /// @title The interface to the Gelt Vault.

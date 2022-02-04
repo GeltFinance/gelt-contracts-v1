@@ -15,6 +15,7 @@ import {
 import { mintWithAuthorization, redeemWithAuthorization } from '../utils/meta-transactions';
 import { Amount } from '../utils/amount';
 import { hardhatDisableFork } from '../utils/network';
+import { describe } from 'mocha';
 
 describe('[Unit] Gelt Vault', () => {
     const stablecoinAmount = new Amount(6);
@@ -282,5 +283,11 @@ describe('[Unit] Gelt Vault', () => {
             await expect(vault.connect(user1).voluntaryExit(ZERO_ADDRESS, 1))
                 .to.be.revertedWith('withdrawTo addr must not be 0');
         });
+    });
+
+    describe('#transferOwnership', async () => {
+       it('should revert when transferring ownership to the zero address', async () => {
+           await expect(vault.transferOwnership(ZERO_ADDRESS)).to.be.revertedWith('owner addr must not be 0');
+       });
     });
 });
