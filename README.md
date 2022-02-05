@@ -30,6 +30,23 @@ The `main` branch contains the tested, audited and deployed contracts on the Pol
 |  `functional/`  | Functional tests defined using Gherkin syntax running against a forked network.                                                                                                                                                                   |
 | `patches/`      | Patch for `@openzeppelin/upgrades-core:1.11.0` adding preliminary support for [user-defined value types](https://blog.soliditylang.org/2021/09/27/user-defined-value-types/#:~:text=Solidity%20v0.,type%20safety%20and%20improves%20readability). |
 
+## Security 
+
+Most functions on the Gelt Vault are access controlled as they're meant to be called by the Gelt Relayer which allows for gasless interaction via meta-transactions.
+
+One notable exception is the `voluntaryExit(..)` function which allows for withdrawal independent of the Gelt Relayer. Using this function the caller pays for any transaction and mStable redemption fees.
+
+The access control policies of the Gelt Vault were designed with the principles of least privilege and separation of duties in mind. The following roles exist on the Gelt Vault:
+
+| Role          | Allowed operations                                                                                                                                        |
+|:--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Owner         | Upgrade the Vault smart contract, grant and revoke Administrator and Operator roles                                                                       |
+| Administrator | Configure, temporarily pause and unpause the Vault, emergency exit strategy, sweep unprotected tokens from the Vault                                      |
+| Operator      | Submit mint and redeem meta-transactions, deposit and withdraw from the strategy (mStable), collect governance tokens to the configured collector address |
+ 
+
+Gelt uses multi-signature wallets to protect the Owner and Administrator keys. The policies also define that there can only be a single Owner at any given time.
+
 ## Development
 
 ### Prerequisites

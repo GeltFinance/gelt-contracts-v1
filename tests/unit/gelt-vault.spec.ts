@@ -15,7 +15,6 @@ import {
 import { mintWithAuthorization, redeemWithAuthorization } from '../utils/meta-transactions';
 import { Amount } from '../utils/amount';
 import { hardhatDisableFork } from '../utils/network';
-import { describe } from 'mocha';
 
 describe('[Unit] Gelt Vault', () => {
     const stablecoinAmount = new Amount(6);
