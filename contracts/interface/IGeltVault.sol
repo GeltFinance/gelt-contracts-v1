@@ -5,10 +5,10 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /// @notice Strategy tolerance configuration.
 struct StrategyTolerances {
-    /// @notice Slippage tolerance in basis points.
-    uint16 slippageBps;
-    /// @notice Strategy redemption fee tolerance in basis points.
-    uint16 redemptionFeeBps;
+    /// @notice Slippage tolerance in scaled basis points.
+    uint64 slippage;
+    /// @notice Strategy redemption fee tolerance in scaled basis points.
+    uint64 redemptionFee;
 }
 
 /// @title The interface to the V1 Gelt Vault.

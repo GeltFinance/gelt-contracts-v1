@@ -13,7 +13,7 @@ import {
     deployMstableGeltVault
 } from '../utils/fixtures';
 import { mintWithAuthorization, redeemWithAuthorization } from '../utils/meta-transactions';
-import { Amount } from '../utils/amount';
+import { Amount, scaledBps } from '../utils/amount';
 import { hardhatDisableFork } from '../utils/network';
 
 describe('[Unit] Gelt Vault', () => {
@@ -205,19 +205,19 @@ describe('[Unit] Gelt Vault', () => {
             const oldTolerances = await vault.strategyTolerances();
             const newTolerances: StrategyTolerancesStruct = {
                 ...oldTolerances,
-                slippageBps: oldTolerances.slippageBps + 1,
+                slippage: oldTolerances.slippage.add(1),
             };
 
             await vault.setStrategyTolerances(newTolerances);
 
-            expect((await vault.strategyTolerances()).slippageBps).to.equal(newTolerances.slippageBps);
+            expect((await vault.strategyTolerances()).slippage).to.equal(newTolerances.slippage);
         });
 
         it('should revert when the tolerances are out of bounds', async () => {
-            await expect(vault.setStrategyTolerances({ slippageBps: 10001, redemptionFeeBps: 0 }))
-              .to.be.revertedWith('slippageBps must be <= 10k');
-            await expect(vault.setStrategyTolerances({ slippageBps: 0, redemptionFeeBps: 10001 }))
-              .to.be.revertedWith('redemptionFeeBps must be <= 10k');
+            await expect(vault.setStrategyTolerances({ slippage: scaledBps(10001), redemptionFee: 0 }))
+              .to.be.revertedWith('slippage out of bounds');
+            await expect(vault.setStrategyTolerances({ slippage: 0, redemptionFee: scaledBps(10001) }))
+              .to.be.revertedWith('redemptionFee out of bounds');
         });
     });
 

@@ -6,7 +6,7 @@ import "../lib/PercentageMath.sol";
 contract PercentageMathHarness {
     using PercentageMath for uint256;
 
-    function basisPoints(uint256 amount, uint16 bps) external pure returns (uint256) {
-        return amount.basisPoints(bps);
+    function percentage(uint256 amount, uint64 scaledBps) external pure returns (uint256) {
+        return amount.percentage(scaledBps);
     }
 }
