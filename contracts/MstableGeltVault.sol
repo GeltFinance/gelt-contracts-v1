@@ -41,20 +41,15 @@ contract MstableGeltVault is
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeERC20Upgradeable for IERC20MetadataUpgradeable;
 
-    /// @dev keccak256("MintWithAuthorization(address minter,uint256 mintAmount,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
-    bytes32 public constant MINT_WITH_AUTHORIZATION_TYPEHASH = 0xad4d465dba421ebf316dfd7beb6ef41bf60496a547732945861044c760879595;
-    /// @dev keccak256("RedeemWithAuthorization(address redeemer,address withdrawTo,uint256 redeemTokens,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
-    bytes32 public constant REDEEM_WITH_AUTHORIZATION_TYPEHASH = 0x14096fccbccc846557d4192820b867744cd17421b9f3e837e5acfb411e85f356;
+    bytes32 public constant MINT_WITH_AUTHORIZATION_TYPEHASH = keccak256("MintWithAuthorization(address minter,uint256 mintAmount,uint256 validAfter,uint256 validBefore,bytes32 nonce)");
+    bytes32 public constant REDEEM_WITH_AUTHORIZATION_TYPEHASH = keccak256("RedeemWithAuthorization(address redeemer,address withdrawTo,uint256 redeemTokens,uint256 validAfter,uint256 validBefore,bytes32 nonce)");
 
     /// @notice Owner of the vault, it can update the vault and assign roles to accounts.
-    /// @dev keccak256("OWNER_ROLE")
-    bytes32 public constant OWNER_ROLE = 0xb19546dff01e856fb3f010c267a7b1c60363cf8a4664e21cc89c26224620214e;
+    bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
     /// @notice Administrator of the vault, can configure the vault and trigger emergency operations.
-    /// @dev keccak256("ADMINISTRATOR_ROLE")
-    bytes32 public constant ADMINISTRATOR_ROLE = 0xe5a0b4d50f56047f84728557fedbda92f956391bc9d5c762e8461996dd8e7ad7;
+    bytes32 public constant ADMINISTRATOR_ROLE = keccak256("ADMINISTRATOR_ROLE");
     /// @notice Operator of the vault, it can interact with the strategy and submit meta-transactions.
-    /// @dev keccak256("OPERATOR_ROLE")
-    bytes32 public constant OPERATOR_ROLE = 0x97667070c54ef182b0f5858b034beac1b6f3089aa2d3188bb1e8929f4fa9b929;
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     /// @notice Address of the governance token collector.
     address public collector;
