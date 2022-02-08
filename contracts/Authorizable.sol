@@ -8,8 +8,7 @@ import "./lib/EIP712.sol";
 /// @title Abstract contract to allow for executing operations using signed authorizations.
 /// @dev Implements meta-transactions as specified in https://eips.ethereum.org/EIPS/eip-3009.
 abstract contract Authorizable is Initializable, EIP712Domain {
-    // keccak256("CancelAuthorization(address authorizer,bytes32 nonce)")
-    bytes32 public constant CANCEL_AUTHORIZATION_TYPEHASH = 0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429;
+    bytes32 public constant CANCEL_AUTHORIZATION_TYPEHASH = keccak256("CancelAuthorization(address authorizer,bytes32 nonce)");
 
     /// @dev Authorizer address => nonce => bool (true if nonce is used)
     mapping(address => mapping(bytes32 => bool)) private _authorizationStates;
