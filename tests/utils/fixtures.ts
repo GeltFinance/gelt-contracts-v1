@@ -79,6 +79,10 @@ export async function deployMstableGeltVault(signer: Signer, options: MstableGel
 
     await vault.deployed();
 
+    // Grant roles needed for testing.
+    await vault.grantRole(await vault.ADMINISTRATOR_ROLE(), await signer.getAddress());
+    await vault.grantRole(await vault.OPERATOR_ROLE(), await signer.getAddress());
+
     return vault;
 }
 

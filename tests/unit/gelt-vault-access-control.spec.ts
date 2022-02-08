@@ -72,6 +72,12 @@ describe('[Unit] Gelt Vault: Access Control', () => {
                 expect(await vault.hasRole(role.role, role.address)).to.be.false;
             }
         });
+
+        it('should allow owner to transfer ownership', async () => {
+            await vault.transferOwnership(user1.address);
+            expect(await vault.hasRole(owner.role, owner.address)).to.be.false;
+            expect(await vault.hasRole(owner.role, user1.address)).to.be.true;
+        });
     });
 
     describe('Role: Administrator', () => {
@@ -104,6 +110,10 @@ describe('[Unit] Gelt Vault: Access Control', () => {
         it('should disallow administrator to upgrade the vault', async () => {
             await expect(vault.upgradeTo(ZERO_ADDRESS)).to.be.revertedWith('missing role');
         });
+
+        it('should disallow administrator to transfer ownership', async () => {
+            await expect(vault.transferOwnership(user1.address)).to.be.reverted;
+        });
     });
 
     describe('Role: Operator', () => {
@@ -135,6 +145,10 @@ describe('[Unit] Gelt Vault: Access Control', () => {
 
         it('should disallow operator to upgrade the vault', async () => {
             await expect(vault.upgradeTo(ZERO_ADDRESS)).to.be.revertedWith('missing role');
+        });
+
+        it('should disallow operator to transfer ownership', async () => {
+            await expect(vault.transferOwnership(user1.address)).to.be.reverted;
         });
     });
 });

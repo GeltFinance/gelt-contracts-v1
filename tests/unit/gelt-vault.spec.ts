@@ -41,7 +41,7 @@ describe('[Unit] Gelt Vault', () => {
     describe('#initialize', () => {
         it('should fail if one of the initialize parameters is the zero address', async () => {
             const mstableGeltVaultOptions = { bAsset: DEAD_ADDRESS, useMockStrategy: false };
-            const errorMessage = 'must not be the zero address';
+            const errorMessage = 'must not be 0';
 
             await expect(deployMstableGeltVault(signer, { ...mstableGeltVaultOptions, bAsset: ZERO_ADDRESS }))
                 .to.be.revertedWith(errorMessage);
@@ -151,19 +151,19 @@ describe('[Unit] Gelt Vault', () => {
 
     describe('#executeStrategyNetDeposit', () => {
         it('should revert when amount = 0', async () => {
-            await expect(vault.executeStrategyNetDeposit(0)).to.be.revertedWith('amount must not be zero');
+            await expect(vault.executeStrategyNetDeposit(0)).to.be.revertedWith('amount must not be 0');
         });
     });
 
     describe('#executeStrategyNetWithdraw', () => {
         it('should revert when amount = 0', async () => {
-            await expect(vault.executeStrategyNetWithdraw(0)).to.be.revertedWith('amount must not be zero');
+            await expect(vault.executeStrategyNetWithdraw(0)).to.be.revertedWith('amount must not be 0');
         });
     });
 
     describe('#emergencyExitStrategy', () => {
         it('should revert when the minimum output quantity is zero', async () => {
-            await expect(vault.emergencyExitStrategy(0)).to.be.revertedWith('minimum output quantity must not be zero');
+            await expect(vault.emergencyExitStrategy(0)).to.be.revertedWith('minOutputQuantity must not be 0');
         });
     });
 
@@ -182,12 +182,12 @@ describe('[Unit] Gelt Vault', () => {
 
         it('should revert when amount = 0', async () => {
             await expect(vault.sweep(ZERO_ADDRESS, 0))
-              .to.be.revertedWith('amount must not be zero');
+              .to.be.revertedWith('amount must not be 0');
         });
 
         it('should revert when trying to sweep a token protected by the vault', async () => {
             await expect(vault.sweep(token.address, 1000))
-              .to.be.revertedWith('token must not be what the vault is protecting');
+              .to.be.revertedWith('token must not be protected');
         });
 
         it('should revert when the balance is less than the amount', async () => {
@@ -215,9 +215,9 @@ describe('[Unit] Gelt Vault', () => {
 
         it('should revert when the tolerances are out of bounds', async () => {
             await expect(vault.setStrategyTolerances({ slippageBps: 10001, redemptionFeeBps: 0 }))
-              .to.be.revertedWith('slippage bps must not be more than 10000');
+              .to.be.revertedWith('slippageBps must be <= 10k');
             await expect(vault.setStrategyTolerances({ slippageBps: 0, redemptionFeeBps: 10001 }))
-              .to.be.revertedWith('redemption fee bps must not be more than 10000');
+              .to.be.revertedWith('redemptionFeeBps must be <= 10k');
         });
     });
 
@@ -230,7 +230,7 @@ describe('[Unit] Gelt Vault', () => {
 
         it('should revert when the supplied reward collector is the zero address', async () => {
             await expect(vault.setCollector(ZERO_ADDRESS))
-              .to.be.revertedWith('setting the collector to the zero address is not allowed');
+              .to.be.revertedWith('collector addr must not be 0');
         });
     });
 
@@ -257,7 +257,7 @@ describe('[Unit] Gelt Vault', () => {
             await ethers.provider.send('evm_increaseTime', [pauseDuration.add(1).toNumber()]);
 
             await expect(vault.connect(user1).voluntaryExit(ZERO_ADDRESS, 1))
-                .to.be.revertedWith('withdrawing to the zero address is not allowed');
+                .to.be.revertedWith('withdrawTo addr must not be 0');
         });
     });
 
@@ -280,7 +280,13 @@ describe('[Unit] Gelt Vault', () => {
             await expect(vault.connect(user1).voluntaryExit(ZERO_ADDRESS, 1)).to.be.revertedWith('paused');
             await vault.emergencyUnpause();
             await expect(vault.connect(user1).voluntaryExit(ZERO_ADDRESS, 1))
-                .to.be.revertedWith('withdrawing to the zero address is not allowed');
+                .to.be.revertedWith('withdrawTo addr must not be 0');
         });
+    });
+
+    describe('#transferOwnership', async () => {
+       it('should revert when transferring ownership to the zero address', async () => {
+           await expect(vault.transferOwnership(ZERO_ADDRESS)).to.be.revertedWith('owner addr must not be 0');
+       });
     });
 });

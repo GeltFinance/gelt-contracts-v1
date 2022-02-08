@@ -102,7 +102,7 @@ describe('[Integration] Gelt Vault <> mStable - Exits', function () {
 
         it('should fail to redeem to the zero address', async () => {
             await expect(vault.connect(user1).voluntaryExit(ZERO_ADDRESS, 1))
-              .to.be.revertedWith('withdrawing to the zero address is not allowed');
+              .to.be.revertedWith('withdrawTo addr must not be 0');
         });
     });
 

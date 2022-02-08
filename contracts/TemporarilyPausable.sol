@@ -68,7 +68,7 @@ abstract contract TemporarilyPausable is Initializable, ContextUpgradeable {
     /// @param pauseDuration_ Duration in seconds.
     function _setPauseDuration(uint256 pauseDuration_) internal {
         // Make sure pause duration is long enough so that miners can't manipulate the behaviour.
-        require(pauseDuration_ >= 1 days, "pause duration must be at least a day");
+        require(pauseDuration_ >= 1 days, "pauseDuration must be >= 1 day");
 
         _pauseDuration = pauseDuration_;
     }
