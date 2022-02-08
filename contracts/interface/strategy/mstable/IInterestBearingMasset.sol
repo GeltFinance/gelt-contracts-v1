@@ -3,9 +3,10 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-/// @dev Uses the ever increasing "exchangeRate" to increase the value of the "credits" (ERC20)
-///      relative to the amount of additional underlying collateral that has been deposited into
-///      this contract ("interest").
+/// @notice Uses the ever increasing "exchangeRate" to increase the value of the "credits" (ERC20)
+///         relative to the amount of additional underlying collateral that has been deposited into
+///         this contract ("interest").
+/// @dev Interface based on https://github.com/mstable/mStable-contracts/blob/69fc5b2d3e4461b4a7b1071e976c316e8b9f370f/contracts/interfaces/ISavingsContract.sol
 interface IInterestBearingMasset is IERC20Upgradeable {
     /// @dev Rate between 'savings credits' and underlying.
     function exchangeRate() external view returns (uint256);
