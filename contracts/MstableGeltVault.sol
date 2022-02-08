@@ -120,8 +120,8 @@ contract MstableGeltVault is
         initialExchangeRate = FixedPointMath.toUFixed256x18(1, 100); // 1:100 initial mint.
         precisionMultiplier = 10**decimals() / 10**bAsset.decimals(); // 10^18 / 10^6 = 10^12
         strategyTolerances = StrategyTolerances({
-            slippageBps: 4, // 0.04%
-            redemptionFeeBps: 10 // 0.10%
+            slippage: 4 * PercentageMath.SCALE, // 0.04%
+            redemptionFee: 10 * PercentageMath.SCALE // 0.10%
         });
 
         collector = address(0);
@@ -274,7 +274,7 @@ contract MstableGeltVault is
         uint256 redeemAmount = _calcRedeemAmount(redeemTokens);
 
         // In case of a voluntary exit, the user pays for the redemption fees.
-        redeemAmount -= redeemAmount.basisPoints(_getStrategyRedeemFeeBps());
+        redeemAmount -= redeemAmount.percentage(_getStrategyRedemptionFee());
 
         require(redeemAmount >= minOutputQuantity, "requested minimum output quantity is not satisfied");
 
@@ -374,8 +374,8 @@ contract MstableGeltVault is
         whenNotTemporarilyPaused
         onlyRole(ADMINISTRATOR_ROLE)
     {
-        require(strategyTolerances_.slippageBps <= 10_000, "slippageBps must be <= 10k");
-        require(strategyTolerances_.redemptionFeeBps <= 10_000, "redemptionFeeBps must be <= 10k");
+        require(strategyTolerances_.slippage <= PercentageMath.MAX_BPS, "slippage out of bounds");
+        require(strategyTolerances_.redemptionFee <= PercentageMath.MAX_BPS, "redemptionFee out of bounds");
 
         emit StrategyTolerancesChanged(strategyTolerances, strategyTolerances_, _msgSender());
 
@@ -466,11 +466,11 @@ contract MstableGeltVault is
         require(amount > 0, "amount must not be 0");
 
         // Check if the mint output quantity is within the allowed bounds.
-        uint256 maxSlippage = amount.basisPoints(strategyTolerances.slippageBps);
+        uint256 maxSlippage = amount.percentage(strategyTolerances.slippage);
         uint256 minOutputQuantity = (amount - maxSlippage) * precisionMultiplier;
 
         uint256 mintOutput = mAsset.getMintOutput(address(bAsset), amount);
-        require(mintOutput >= minOutputQuantity, "mint not allowed, slippage is outside of tolerance");
+        require(mintOutput >= minOutputQuantity, "slippage outside of tolerance");
 
         bAsset.safeIncreaseAllowance(address(saveWrapper), amount);
 
@@ -497,13 +497,13 @@ contract MstableGeltVault is
     function _executeStrategyRedeem(uint256 amount, bool checkRedemptionFee) internal returns (uint256 outputAmount) {
         require(amount > 0, "amount must not be 0");
 
-        uint16 redeemFeeBps = _getStrategyRedeemFeeBps();
+        uint64 redemptionFee = _getStrategyRedemptionFee();
 
         if (checkRedemptionFee) {
             // Check if the mStable redemption fee is within the tolerance bounds.
             require(
-                redeemFeeBps <= strategyTolerances.redemptionFeeBps,
-                "redeem not allowed, strategy redemption fee is outside of tolerance"
+                redemptionFee <= strategyTolerances.redemptionFee,
+                "redemptionFee out of tolerance"
             );
         }
 
@@ -513,9 +513,9 @@ contract MstableGeltVault is
         // Scale bAsset amount to mAsset precision.
         uint256 maxRedeemOutput = amount * precisionMultiplier;
         // Calculate maximum tolerated redeem amount (includes slippage and redeem fee).
-        maxRedeemOutput += maxRedeemOutput.basisPoints(redeemFeeBps); // Redeem fee tolerance already checked.
-        maxRedeemOutput += maxRedeemOutput.basisPoints(strategyTolerances.slippageBps);
-        require(maxRedeemOutput >= withdrawAmount, "redeem not allowed, redeem delta is outside of tolerance");
+        maxRedeemOutput += maxRedeemOutput.percentage(redemptionFee); // Redemption fee tolerance already checked.
+        maxRedeemOutput += maxRedeemOutput.percentage(strategyTolerances.slippage);
+        require(maxRedeemOutput >= withdrawAmount, "redeem delta out of tolerance");
 
         // Get value in imAssets.
         uint256 credits = imAsset.underlyingToCredits(withdrawAmount);
@@ -585,14 +585,10 @@ contract MstableGeltVault is
         }
     }
 
-    /// @dev Returns the current redemption fee of the underlying strategy in basis points.
-    /// @return redemptionFeeBps Redemption fee in bps.
-    function _getStrategyRedeemFeeBps() internal view returns (uint16 redemptionFeeBps) {
-        uint256 redemptionFee = mAsset.data().redemptionFee;
-
-        require(redemptionFee >= 1e14, "redemptionFee must be >= 1e14");
-
-        redemptionFeeBps = (redemptionFee / 1e14).toUint16();
+    /// @dev Returns the current redemption fee of the underlying strategy.
+    /// @return redemptionFee Redemption fee in scaled basis points (bps * 1e14).
+    function _getStrategyRedemptionFee() internal view returns (uint64 redemptionFee) {
+        redemptionFee = mAsset.data().redemptionFee.toUint64();
     }
 
     /// @dev Calculates the amount of meta asset to redeem to receive the given amount of underlying basket asset.

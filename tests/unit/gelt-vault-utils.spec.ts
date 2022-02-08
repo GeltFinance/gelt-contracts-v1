@@ -9,7 +9,7 @@ import {
     PercentageMathHarness__factory
 } from '../../types';
 import { hardhatDisableFork } from '../utils/network';
-import { UINT256_MAX } from '../utils/fixtures';
+import { scaledBps, UINT256_MAX } from '../utils/amount';
 
 describe('[Unit] Gelt Vault: Utils', () => {
     let signer: SignerWithAddress; // Default signer unless otherwise specified.
@@ -126,24 +126,24 @@ describe('[Unit] Gelt Vault: Utils', () => {
         describe('#basisPoints', () => {
             it('should calculate the correct basis points for the given amount', async () => {
                 const amount = BigNumber.from(100 * 10e6);
-                expect(await percentageMath.basisPoints(amount, 100)).to.equal(10e6);
-                expect(await percentageMath.basisPoints(amount, 2000)).to.equal(20 * 10e6);
-                expect(await percentageMath.basisPoints(amount, 5)).to.equal(5 * 10e4);
-                expect(await percentageMath.basisPoints(amount, 1)).to.equal(10e4);
-                expect(await percentageMath.basisPoints(amount, 9999)).to.equal(9999 * 10e4);
-                expect(await percentageMath.basisPoints(amount, 10000)).to.equal(100 * 10e6);
+                expect(await percentageMath.percentage(amount, scaledBps(100))).to.equal(10e6);
+                expect(await percentageMath.percentage(amount, scaledBps(2000))).to.equal(20 * 10e6);
+                expect(await percentageMath.percentage(amount, scaledBps(5))).to.equal(5 * 10e4);
+                expect(await percentageMath.percentage(amount, scaledBps(1))).to.equal(10e4);
+                expect(await percentageMath.percentage(amount, scaledBps(9999))).to.equal(9999 * 10e4);
+                expect(await percentageMath.percentage(amount, scaledBps(10000))).to.equal(100 * 10e6);
             });
 
             it('should revert when amount = 0', async () => {
-                await expect(percentageMath.basisPoints(0, 10))
-                  .to.be.revertedWith('amount must not be zero');
+                await expect(percentageMath.percentage(0, 10))
+                  .to.be.revertedWith('amount must not be 0');
             });
 
             it('should revert when bps is out of bounds', async () => {
-                await expect(percentageMath.basisPoints(100 * 10e6, 0))
-                  .to.be.revertedWith('bps must not be zero');
-                await expect(percentageMath.basisPoints(100 * 10e6, 10001))
-                  .to.be.revertedWith('bps must not be more than 10000');
+                await expect(percentageMath.percentage(100 * 10e6, 0))
+                  .to.be.revertedWith('bps must not be 0');
+                await expect(percentageMath.percentage(100 * 10e6, scaledBps(10001)))
+                  .to.be.revertedWith('bps out of bounds');
             });
         });
     });

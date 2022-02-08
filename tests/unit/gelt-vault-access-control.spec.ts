@@ -139,7 +139,7 @@ describe('[Unit] Gelt Vault: Access Control', () => {
         });
 
         it('should disallow operator to configure the vault', async () => {
-            await expect(vault.setStrategyTolerances({ slippageBps: 0, redemptionFeeBps: 0 }))
+            await expect(vault.setStrategyTolerances({ slippage: 0, redemptionFee: 0 }))
                 .to.be.revertedWith('missing role');
         });
 

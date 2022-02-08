@@ -1,5 +1,5 @@
 import { ethers, upgrades } from 'hardhat';
-import { BigNumber, BigNumberish, Contract, ContractFactory, Signer } from 'ethers';
+import { BigNumberish, Contract, ContractFactory, Signer } from 'ethers';
 import {
     ERC20,
     ERC20Harness__factory,
@@ -9,6 +9,7 @@ import {
     MstableGeltVaultHarness__factory,
 } from '../../types';
 import { EIP712Domain } from './eip712';
+import { UINT256_MAX } from './amount';
 
 interface Erc20Options {
     name?: string;
@@ -34,10 +35,6 @@ interface MstableGeltVaultOptions extends GeltVaultOptions {
 export const DEAD_ADDRESS = '0x000000000000000000000000000000000000dEaD';
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-export const UINT256_MAX = BigNumber.from(2).pow(256).sub(1);
-
-export const INT256_MAX = BigNumber.from(2).pow(255).sub(1);
 
 export const defaultErc20Options: Erc20Options = {
     initialSupply: UINT256_MAX,
