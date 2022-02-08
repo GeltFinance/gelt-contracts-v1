@@ -3,8 +3,9 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-/// @dev Rewards stakers of a given LP token (a.k.a StakingToken) with RewardsToken, on a pro-rata basis
-///      additionally, distributes the Platform token airdropped by the platform.
+/// @notice Rewards stakers of a given LP token (a.k.a StakingToken) with RewardsToken, on a pro-rata basis
+///         additionally, distributes the Platform token airdropped by the platform.
+/// @dev Interface based on https://github.com/mstable/mStable-contracts/blob/69fc5b2d3e4461b4a7b1071e976c316e8b9f370f/contracts/rewards/staking/StakingRewardsWithPlatformToken.sol
 interface IVaultedInterestBearingMasset is IERC20Upgradeable {
     /// @dev Withdraws given stake amount from the pool.
     /// @param _amount Units of the staked token to withdraw.
