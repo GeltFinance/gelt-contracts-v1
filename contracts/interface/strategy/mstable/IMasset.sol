@@ -7,9 +7,9 @@ struct MassetData {
     uint256 redemptionFee;
 }
 
-/// @notice An incentivised constant sum market maker with hard limits at max region. The AMM produces a
-///         stablecoin (mAsset) and redirects lending market interest and swap fees to the savings
-///         contract, producing a second yield bearing asset.
+/// @title An incentivised constant sum market maker with hard limits at max region.
+/// @notice The AMM produces stablecoin (mAsset) and redirects lending market interest
+///         and swap fees to the savings contract, producing a second yield bearing asset.
 /// @dev Interface based on https://github.com/mstable/mStable-contracts/blob/69fc5b2d3e4461b4a7b1071e976c316e8b9f370f/contracts/interfaces/IMasset.sol
 interface IMasset is IERC20Upgradeable {
     /// @dev Configuration.
