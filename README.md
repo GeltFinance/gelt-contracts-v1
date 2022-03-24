@@ -10,9 +10,9 @@ This repository contains all the smart contracts and tests relevant to the DeFi 
 
 The `main` branch contains the tested, audited and deployed contracts on the Polygon Mainnet.
 
-| Contract      | Address |
-|---------------|---------|
-| Gelt Vault V1 | _TBA_   |
+| Contract      | Address                                                                                                                    |
+|---------------|----------------------------------------------------------------------------------------------------------------------------|
+| Gelt Vault V1 | [`0xEFB9905770Efa60D0f5A49340c55DaDb2cD09a8B`](https://polygonscan.com/address/0xEFB9905770Efa60D0f5A49340c55DaDb2cD09a8B) |
 
 ## Overview
 
