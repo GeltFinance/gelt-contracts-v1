@@ -1,8 +1,8 @@
-name: CI (main)
+name: CI
 
 on:
-  push:
-    branches: [main]
+  pull_request:
+    types: [opened, synchronize] # Trigger workflow on PR creation and when a commit is pushed.
 
 jobs:
   build:
@@ -34,22 +34,6 @@ jobs:
       max-parallel: 3
       matrix:
         suite: ['integration:execute-strategy', 'integration:exit', 'integration:rewards']
-    steps:
-      - uses: actions/checkout@v2
-      - name: Restore contract artifacts from cache
-        uses: ./.github/actions/restore-contracts
-      - name: Run ${{ matrix.suite }} tests
-        env:
-          ALCHEMY_ACCESS_TOKEN: ${{ secrets.ALCHEMY_ACCESS_TOKEN }}
-        run: npm run test:${{ matrix.suite }}
-
-  functional-test:
-    runs-on: ubuntu-latest
-    needs: [integration-test]
-    strategy:
-      max-parallel: 1
-      matrix:
-        suite: ['functional']
     steps:
       - uses: actions/checkout@v2
       - name: Restore contract artifacts from cache

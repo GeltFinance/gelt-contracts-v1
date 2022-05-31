@@ -1,0 +1,26 @@
+name: 'Restores Solidity contract artifacts and dependencies from cache'
+inputs:
+  node_version:
+    description: 'Node.js version'
+    default: '16'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup environment
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node_version }}
+        cache: 'npm'
+    - name: Restore dependencies
+      uses: actions/cache@v2
+      with:
+        path: ./node_modules
+        key: node-modules-${{ hashFiles('package-lock.json') }}
+    - name: Restore cached artifacts
+      uses: actions/cache@v2
+      with:
+        path: |
+          ./types
+          ./artifacts
+          ./cache
+        key: artifacts-${{ github.sha }}

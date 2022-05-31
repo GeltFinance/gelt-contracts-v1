@@ -57,6 +57,14 @@ The access control policies of the Gelt Vault were designed with the principles 
 
 Gelt uses multi-signature wallets to protect the Owner and Administrator keys. The policies also define that there can only be a single Owner at any given time.
 
+### Audit & Bug Bounty
+
+Gelt's smart contracts have been audited by Quantstamp.
+The full audit report is made available on [Quantstamp's certification website](https://certificate.quantstamp.com/full/gelt-vault-v-1).
+
+Gelt also has an active bug bounty for smart contract vulnerabilities which can lead to a substantial loss or irreversible freezing of user funds.
+For more details please see our [bug bounty page on Immunefi](https://immunefi.com/bounty/gelt/).
+
 ## Development
 
 ### Prerequisites
